@@ -14,9 +14,6 @@ from spider_silkome_module.config import (
 # Import export functions
 from spider_silkome_module.export import positions_export
 
-# Import processing functions
-from spider_silkome_module.processing import extract_positions_from_gff
-
 # Import data models
 from spider_silkome_module.models import (
     Attributes,
@@ -24,6 +21,9 @@ from spider_silkome_module.models import (
     GFFData,
     Position,
 )
+
+# Import processing functions
+from spider_silkome_module.processing import extract_positions_from_gff
 
 # Public API
 __all__ = [

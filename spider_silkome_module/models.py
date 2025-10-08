@@ -1,6 +1,7 @@
 """
 Data Model Definition for Data Structures Used in Spidroin Gene Annotation and Prediction
 """
+
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
@@ -8,6 +9,7 @@ from typing import Dict, List, Optional
 @dataclass
 class Attributes:
     """Data structure of the attributes field in the GFF file output by miniprot"""
+
     ID: str
     Rank: int
     Identity: float
@@ -18,14 +20,15 @@ class Attributes:
 @dataclass
 class GFFData:
     """GFF format data output by miniprot"""
-    seqid: str              # Sequence ID (Chromosome Name)
-    source: str             # Source Text: Source (e.g., 'miniprot')
-    type: str               # Feature types (such as 'gene', 'mRNA', 'CDS')
-    start: int              # Starting position (1-based)
-    end: int                # End position (1-based, inclusive)
-    score: float            # Score
-    strand: str             # Strand ('+' or '-')
-    frame: str              # Reading frame ('0', '1', '2' or '.')
+
+    seqid: str  # Sequence ID (Chromosome Name)
+    source: str  # Source Text: Source (e.g., 'miniprot')
+    type: str  # Feature types (such as 'gene', 'mRNA', 'CDS')
+    start: int  # Starting position (1-based)
+    end: int  # End position (1-based, inclusive)
+    score: float  # Score
+    strand: str  # Strand ('+' or '-')
+    frame: str  # Reading frame ('0', '1', '2' or '.')
     attributes: Attributes  # Attribute Information
 
 
@@ -35,10 +38,11 @@ class Position:
     Store the start and end position information on a specific chromosome-strand combination.
     For gene boundary prediction
     """
-    chr: str                        # Chromosome name
-    strand: str                     # Strand ('+' or '-')
-    start: Optional[Dict[int, int]] # Start position and count {position: count}
-    end: Optional[Dict[int, int]]   # End position and count {position: count}
+
+    chr: str  # Chromosome name
+    strand: str  # Strand ('+' or '-')
+    start: Optional[Dict[int, int]]  # Start position and count {position: count}
+    end: Optional[Dict[int, int]]  # End position and count {position: count}
 
     def __post_init__(self):
         """Post initialization processing, ensure start and end are dictionaries"""
@@ -59,6 +63,7 @@ class Position:
 @dataclass
 class GenePrediction:
     """Gene prediction result"""
+
     chr: str
     strand: str
     start_position: int
@@ -80,8 +85,8 @@ class GenePrediction:
         end_pos: int,
         end_count: int,
         min_length: int = 1000,
-        max_length: int = 100000
-    ) -> 'GenePrediction':
+        max_length: int = 100000,
+    ) -> "GenePrediction":
         """
         Create gene prediction from position information
 
@@ -101,18 +106,18 @@ class GenePrediction:
 
             if length < min_length:
                 valid = False
-                reason = f'too_short_{length}'
+                reason = f"too_short_{length}"
             elif length > max_length:
                 valid = False
-                reason = f'too_long_{length}'
+                reason = f"too_long_{length}"
             else:
                 valid = True
-                reason = 'valid'
+                reason = "valid"
         else:
             length = 0
             score = 0
             valid = False
-            reason = 'invalid_order'
+            reason = "invalid_order"
 
         return cls(
             chr=chr,
@@ -124,5 +129,5 @@ class GenePrediction:
             length=length,
             score=score,
             valid=valid,
-            reason=reason
+            reason=reason,
         )

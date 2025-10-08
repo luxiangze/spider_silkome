@@ -14,6 +14,9 @@ from spider_silkome_module.config import (
 # Import export functions
 from spider_silkome_module.export import positions_export
 
+# Import processing functions
+from spider_silkome_module.processing import extract_positions_from_gff
+
 # Import data models
 from spider_silkome_module.models import (
     Attributes,
@@ -36,6 +39,8 @@ __all__ = [
     "REPORTS_DIR",
     # Export functions
     "positions_export",
+    # Processing functions
+    "extract_positions_from_gff",
     # Data models
     "Attributes",
     "GenePrediction",

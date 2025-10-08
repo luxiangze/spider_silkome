@@ -129,13 +129,20 @@ def _export_to_csv(
     ]
 
     df = pd.DataFrame(rows)
-    df = df.sort_values(['chr', 'strand', 'start_position', 'end_position'])
+    
+    # Only sort if DataFrame is not empty
+    if not df.empty:
+        df = df.sort_values(['chr', 'strand', 'start_position', 'end_position'])
+    
     df.to_csv(output_file, index=False)
 
     logger.info(f"CSV saved to {output_file}")
     logger.info(f"Total combinations: {len(df)}")
-    logger.info(f"Valid combinations: {df['valid'].sum()}")
-    logger.info(f"Invalid combinations: {(~df['valid']).sum()}")
+    if not df.empty:
+        logger.info(f"Valid combinations: {df['valid'].sum()}")
+        logger.info(f"Invalid combinations: {(~df['valid']).sum()}")
+    else:
+        logger.warning("No data to export")
 
     return df
 

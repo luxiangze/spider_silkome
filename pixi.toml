@@ -21,6 +21,8 @@ tqdm = "*"
 typer = "*"
 pip = "*"
 miniprot = "0.18.*"
+csvtk = ">=0.34.0,<0.35"
+biopython = ">=1.85,<2"
 
 [pypi-dependencies]
 mkdocs = "*"

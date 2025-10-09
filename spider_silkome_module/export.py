@@ -10,6 +10,38 @@ import pandas as pd
 from spider_silkome_module.models import GenePrediction, Position
 
 
+def _has_no_intermediate_positions(
+    start_pos: int,
+    end_pos: int,
+    all_start_positions: List[int],
+    all_end_positions: List[int],
+) -> bool:
+    """
+    检查 start 和 end 之间是否没有其他 start 或 end 位置
+    
+    Parameters:
+    - start_pos: 当前起始位置
+    - end_pos: 当前终止位置
+    - all_start_positions: 所有起始位置列表
+    - all_end_positions: 所有终止位置列表
+    
+    Returns:
+    - True: 区间内没有其他位置 (有效)
+    - False: 区间内有其他位置 (无效)
+    """
+    # 检查是否有其他 start 位置在区间内
+    for other_start in all_start_positions:
+        if start_pos < other_start < end_pos:
+            return False
+    
+    # 检查是否有其他 end 位置在区间内
+    for other_end in all_end_positions:
+        if start_pos < other_end < end_pos:
+            return False
+    
+    return True
+
+
 def positions_export(
     positions: List[Position],
     output_file: str,
@@ -107,6 +139,15 @@ def _export_to_csv(
                         min_length=min_length,
                         max_length=max_length,
                     )
+                    
+                    # 如果初步验证通过,再检查是否有中间位置
+                    if pred.valid:
+                        if not _has_no_intermediate_positions(
+                            start_pos, end_pos, start_positions, end_positions
+                        ):
+                            pred.valid = False
+                            pred.reason = "has_intermediate_positions"
+                    
                     predictions.append(pred)
 
     # Convert to DataFrame
@@ -185,8 +226,10 @@ def _export_to_gff(
                     max_length=max_length,
                 )
 
-                # Only include valid predictions
-                if pred.valid:
+                # Only include valid predictions without intermediate positions
+                if pred.valid and _has_no_intermediate_positions(
+                    start_pos, end_pos, start_positions, end_positions
+                ):
                     gff_records.append(
                         {
                             "seqid": pred.chr,

@@ -18,13 +18,13 @@ def _has_no_intermediate_positions(
 ) -> bool:
     """
     检查 start 和 end 之间是否没有其他 start 或 end 位置
-    
+
     Parameters:
     - start_pos: 当前起始位置
     - end_pos: 当前终止位置
     - all_start_positions: 所有起始位置列表
     - all_end_positions: 所有终止位置列表
-    
+
     Returns:
     - True: 区间内没有其他位置 (有效)
     - False: 区间内有其他位置 (无效)
@@ -33,12 +33,12 @@ def _has_no_intermediate_positions(
     for other_start in all_start_positions:
         if start_pos < other_start < end_pos:
             return False
-    
+
     # 检查是否有其他 end 位置在区间内
     for other_end in all_end_positions:
         if start_pos < other_end < end_pos:
             return False
-    
+
     return True
 
 
@@ -49,6 +49,7 @@ def positions_export(
     spidroin: str = None,
     min_length: int = 1000,
     max_length: int = 100000,
+    extension_length: int = 10000,
 ):
     """
     Export the positions list to CSV or GFF format.
@@ -60,6 +61,7 @@ def positions_export(
     - spidroin: Spidroin name (required for GFF format ID generation)
     - min_length: Minimum gene length threshold (default 1000bp)
     - max_length: Maximum gene length threshold (default 100000bp)
+    - extension_length: Length to extend when start or end is missing in GFF format (default 10000bp)
 
     Returns:
     - If CSV format, returns DataFrame
@@ -69,10 +71,10 @@ def positions_export(
         return _export_to_csv(positions, output_file, min_length, max_length)
     elif format.lower() == "gff":
         if spidroin is None:
-            raise ValueError("GFF 格式需要提供 spidroin 参数")
-        return _export_to_gff(spidroin, positions, output_file, min_length, max_length)
+            raise ValueError("The GFF format requires providing spidroin parameters.")
+        return _export_to_gff(spidroin, positions, output_file, min_length, max_length, extension_length)
     else:
-        raise ValueError(f"不支持的格式: {format}，请使用 'csv' 或 'gff'")
+        raise ValueError(f"Unsupported format: {format}, please use 'csv' or 'gff'")
 
 
 def _export_to_csv(
@@ -139,7 +141,7 @@ def _export_to_csv(
                         min_length=min_length,
                         max_length=max_length,
                     )
-                    
+
                     # 如果初步验证通过,再检查是否有中间位置
                     if pred.valid:
                         if not _has_no_intermediate_positions(
@@ -147,7 +149,7 @@ def _export_to_csv(
                         ):
                             pred.valid = False
                             pred.reason = "has_intermediate_positions"
-                    
+
                     predictions.append(pred)
 
     # Convert to DataFrame
@@ -187,7 +189,12 @@ def _export_to_csv(
 
 
 def _export_to_gff(
-    spidroin: str, positions: List[Position], output_file: str, min_length: int, max_length: int
+    spidroin: str,
+    positions: List[Position],
+    output_file: str,
+    min_length: int,
+    max_length: int,
+    extension_length: int = 10000
 ) -> List[dict]:
     """
     Convert positions to GFF format gene predictions
@@ -198,19 +205,71 @@ def _export_to_gff(
     - output_file: Output GFF file path
     - min_length: Minimum gene length threshold
     - max_length: Maximum gene length threshold
+    - extension_length: Length to extend when start or end is missing (default: 10000bp)
     """
     gff_records = []
     gene_id = 1
 
     for pos in positions:
-        # Skip records without both start and end
-        if not pos.has_valid_pair():
+        # Get all start and end positions
+        start_positions = sorted(pos.start.keys()) if pos.start else []
+        end_positions = sorted(pos.end.keys()) if pos.end else []
+
+        # Skip if both start and end are missing
+        if not start_positions and not end_positions:
             continue
 
-        # Get all start and end positions
-        start_positions = sorted(pos.start.keys())
-        end_positions = sorted(pos.end.keys())
+        # Handle no_start case: only end positions available
+        if not start_positions and end_positions:
+            for end_pos in end_positions:
+                end_count = pos.end[end_pos]
+                # Calculate start position by extending backwards
+                start_pos = max(1, end_pos - extension_length)
+                length = end_pos - start_pos
+                score = end_count
 
+                gff_records.append(
+                    {
+                        "seqid": pos.chr,
+                        "source": "miniprot",
+                        "type": "gene",
+                        "start": start_pos,
+                        "end": end_pos,
+                        "score": score,
+                        "strand": pos.strand,
+                        "phase": ".",
+                        "attributes": f"ID={spidroin}_{gene_id:04d};length={length};start_count=0;end_count={end_count};note=no_start",
+                    }
+                )
+                gene_id += 1
+            continue
+
+        # Handle no_end case: only start positions available
+        if start_positions and not end_positions:
+            for start_pos in start_positions:
+                start_count = pos.start[start_pos]
+                # Calculate end position by extending forwards
+                end_pos = start_pos + extension_length ## ToDo: Consider the length of the chromosome
+                length = end_pos - start_pos
+                score = start_count
+
+                gff_records.append(
+                    {
+                        "seqid": pos.chr,
+                        "source": "miniprot",
+                        "type": "gene",
+                        "start": start_pos,
+                        "end": end_pos,
+                        "score": score,
+                        "strand": pos.strand,
+                        "phase": ".",
+                        "attributes": f"ID={spidroin}_{gene_id:04d};length={length};start_count={start_count};end_count=0;note=no_end",
+                    }
+                )
+                gene_id += 1
+            continue
+
+        # Normal case: both start and end positions available
         # Iterate through all possible start-end combinations
         for start_pos in start_positions:
             for end_pos in end_positions:
@@ -245,7 +304,7 @@ def _export_to_gff(
                     )
                     gene_id += 1
 
-    # 写入 GFF 文件
+    # Writing to GFF file
     with open(output_file, "w") as f:
         f.write("##gff-version 3\n")
         for record in gff_records:

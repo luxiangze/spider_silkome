@@ -1,5 +1,5 @@
 """
-导出 positions 数据到不同格式的工具函数
+Export positions data to different format utility functions
 """
 
 from typing import List
@@ -17,24 +17,24 @@ def _has_no_intermediate_positions(
     all_end_positions: List[int],
 ) -> bool:
     """
-    检查 start 和 end 之间是否没有其他 start 或 end 位置
+    Check if there are no other start or end positions between start and end
 
     Parameters:
-    - start_pos: 当前起始位置
-    - end_pos: 当前终止位置
-    - all_start_positions: 所有起始位置列表
-    - all_end_positions: 所有终止位置列表
+    - start_pos: Current start position
+    - end_pos: Current end position
+    - all_start_positions: List of all start positions
+    - all_end_positions: List of all end positions
 
     Returns:
-    - True: 区间内没有其他位置 (有效)
-    - False: 区间内有其他位置 (无效)
+    - True: Interval has no other positions (valid)
+    - False: Interval has other positions (invalid)
     """
-    # 检查是否有其他 start 位置在区间内
+    # Check if there are other start positions within the interval.
     for other_start in all_start_positions:
         if start_pos < other_start < end_pos:
             return False
 
-    # 检查是否有其他 end 位置在区间内
+    # Check if there are other end positions within the interval.
     for other_end in all_end_positions:
         if start_pos < other_end < end_pos:
             return False

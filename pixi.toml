@@ -28,3 +28,9 @@ biopython = ">=1.85,<2"
 mkdocs = "*"
 python-dotenv = "*"
 spider_silkome_module = { path = ".", editable = true }
+
+[feature.mmseqs.dependencies]
+mmseqs2 = "*"
+
+[environments]
+mmseqs = ["mmseqs"]

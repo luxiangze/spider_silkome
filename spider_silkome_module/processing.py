@@ -12,44 +12,44 @@ def extract_positions_from_gff(
     gff_data: List[GFFData], positive_threshold: float = 0.85
 ) -> List[Position]:
     """
-    从 GFF 数据中提取 spidroin 的位置信息
+    Extracting the positional information of spidroin from GFF data
 
-    根据 C 端和 N 端的比对结果，提取每个染色体-链组合的起始和终止位置。
+    According to the alignment results of the C-terminus and N-terminus, extract the start and end positions of each chromosome-strand combination, as well as the type of spidroin.
 
-    核心逻辑说明：
-    - 正向链 (+)：基因从5'到3'，N端在前（start），C端在后（end）
-    - 反向链 (-)：基因在反向互补链上，基因组坐标中start < end，但生物学意义上C端对应较小的坐标
+    Core logic explanation:
+    - Sense strand (+): Gene runs from 5' to 3', N-terminus at the front (start), C-terminus at the back (end).
+    - Anti-sense strand (-): Gene runs from 3' to 5', N-terminus at the back (end), C-terminus at the front (start).
 
-    位置记录规则：
-    | 类型 | 链方向 | 记录位置 | 原因                           |
+    Position recording rules:
+    | Type | Strand | Record Position | Reason                           |
     |------|--------|----------|--------------------------------|
-    | CTD  | +      | end      | C端在基因末尾，向后延伸        |
-    | CTD  | -      | start    | C端在基因起始（基因组坐标小），向前延伸 |
-    | NTD  | +      | start    | N端在基因起始，向前延伸        |
-    | NTD  | -      | end      | N端在基因末尾（基因组坐标大），向后延伸 |
+    | CTD  | +      | end      | C-terminal domain at the end of the gene, extends backward        |
+    | CTD  | -      | start    | C-terminal domain at the start of the gene (smaller coordinate in gene group), extends forward |
+    | NTD  | +      | start    | N-terminal domain at the start of the gene, extends forward        |
+    | NTD  | -      | end      | N-terminal domain at the end of the gene (larger coordinate in gene group), extends backward |
 
     Parameters
     ----------
     gff_data : List[GFFData]
-        miniprot 输出的 GFF 格式数据列表
+        miniprot output GFF data list
     positive_threshold : float, optional
-        质量阈值，过滤低于此阈值的比对结果，默认为 0.85
+        Quality threshold, filter out alignment results below this threshold, default is 0.85
 
     Returns
     -------
     List[Position]
-        按染色体和链排序的位置信息列表
+        List of positions sorted by chromosome and strand
 
     Examples
     --------
     >>> positions = extract_positions_from_gff(spidroin_gff_data, positive_threshold=0.85)
-    >>> print(f"找到 {len(positions)} 个染色体-链组合")
+    >>> print(f"Found {len(positions)} chromosome-strand combinations")
     """
-    # 用于存储每个染色体+链的位置信息
+    # Store position information for each chromosome+strand
     positions_dict = defaultdict(lambda: {"start": defaultdict(int), "end": defaultdict(int)})
 
     for aln in gff_data:
-        # 过滤低质量比对
+        # Filter out low quality alignments
         if aln.attributes.Positive < positive_threshold:
             continue
 
@@ -57,26 +57,26 @@ def extract_positions_from_gff(
         strand = aln.strand
         key = (chr_id, strand)
 
-        # 判断是C端还是N端
+        # Determine if it is C-terminal or N-terminal
         domain_type = aln.attributes.Target[-1].split(" ")[0]
 
         if domain_type == "CTD":  # C-terminal domain
-            if strand == "+":  # 正向：C端在后面，记录end位置
+            if strand == "+":  # Forward: C-terminal at the end, record end position
                 pos_value = aln.end
                 positions_dict[key]["end"][pos_value] += 1
-            else:  # 反向：C端在前面（基因组坐标），记录start位置
+            else:  # Reverse: C-terminal at the start (smaller coordinate in gene group), record start position
                 pos_value = aln.start
                 positions_dict[key]["start"][pos_value] += 1
 
         elif domain_type == "NTD":  # N-terminal domain
-            if strand == "+":  # 正向：N端在前面，记录start位置
+            if strand == "+":  # Forward: N-terminal at the start, record start position
                 pos_value = aln.start
                 positions_dict[key]["start"][pos_value] += 1
-            else:  # 反向：N端在后面（基因组坐标），记录end位置
+            else:  # Reverse: N-terminal at the end (larger coordinate in gene group), record end position
                 pos_value = aln.end
                 positions_dict[key]["end"][pos_value] += 1
 
-    # 转换为 Position 对象列表
+    # Convert to Position object list
     positions = []
     for (chr_id, strand), pos_data in positions_dict.items():
         positions.append(
@@ -85,7 +85,7 @@ def extract_positions_from_gff(
             )
         )
 
-    # 按染色体和链排序
+    # Sort by chromosome and strand
     positions.sort(key=lambda x: (int(x.chr.replace("Chr", "")), x.strand))
 
     return positions

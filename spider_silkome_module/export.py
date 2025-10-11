@@ -142,7 +142,7 @@ def _export_to_csv(
                         max_length=max_length,
                     )
 
-                    # 如果初步验证通过,再检查是否有中间位置
+                    # If initial validation passes, check for intermediate positions
                     if pred.valid:
                         if not _has_no_intermediate_positions(
                             start_pos, end_pos, start_positions, end_positions

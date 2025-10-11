@@ -99,7 +99,7 @@ spider_silkome/
 │   ├── interim/          # 中间处理结果
 │   └── processed/        # 最终输出结果
 ├── spider_silkome_module/
-│   ├── spidroin_curation.py  # 主流程脚本
+│   ├── miniprot_mapping.py   # 主流程脚本
 │   ├── processing.py         # 数据处理函数
 │   └── export.py             # 结果导出函数
 ├── notebooks/            # Jupyter notebooks
@@ -109,7 +109,7 @@ spider_silkome/
 
 ## 贡献与支持
 
-- 报告问题：[GitHub Issues](https://github.com/your-repo/issues)
+- 报告问题：[GitHub Issues](https://github.com/luxiangze/spider_silkome/issues)
 - 文档反馈：欢迎提交 PR
 - 联系方式：见项目 README
 

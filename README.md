@@ -14,7 +14,7 @@ pixi shell          # 激活环境
 make miniprot_mapping  # 运行 Miniprot Mapping 流程
 ```
 
-📖 **详细文档**: [docs/docs/index.md](https://github.com/luxiangze/spider_silkome/blob/main/docs/docs/index.md)
+📖 **详细文档**: [docs/docs/index.md](https://github.com/luxiangze/Spider_Spidroin_Curation/blob/main/docs/docs/index.md)
 
 ## 主要功能
 
@@ -27,11 +27,11 @@ make miniprot_mapping  # 运行 Miniprot Mapping 流程
 
 ## 文档
 
-- [项目主页](https://github.com/luxiangze/spider_silkome/blob/main/docs/docs/index.md) - 项目概览
-- [快速入门](https://github.com/luxiangze/spider_silkome/blob/main/docs/docs/getting-started.md) - 安装和使用
-- [完整工作流程](https://github.com/luxiangze/spider_silkome/blob/main/docs/docs/workflow.md) - 详细流程
-- [技术细节](https://github.com/luxiangze/spider_silkome/blob/main/docs/docs/technical-details.md) - 算法和参数
-- [数据格式](https://github.com/luxiangze/spider_silkome/blob/main/docs/docs/data-formats.md) - 文件格式
+- [项目主页](https://github.com/luxiangze/Spider_Spidroin_Curation/blob/main/docs/docs/index.md) - 项目概览
+- [快速入门](https://github.com/luxiangze/Spider_Spidroin_Curation/blob/main/docs/docs/getting-started.md) - 安装和使用
+- [完整工作流程](https://github.com/luxiangze/Spider_Spidroin_Curation/blob/main/docs/docs/workflow.md) - 详细流程
+- [技术细节](https://github.com/luxiangze/Spider_Spidroin_Curation/blob/main/docs/docs/technical-details.md) - 算法和参数
+- [数据格式](https://github.com/luxiangze/Spider_Spidroin_Curation/blob/main/docs/docs/data-formats.md) - 文件格式
 
 ## 项目结构
 
@@ -62,6 +62,6 @@ spider_silkome/
 如需引用本项目，请使用：
 ```
 Spider Spidroin Curation (SpiderSc)
-https://github.com/luxiangze/spider_silkome
+https://github.com/luxiangze/Spider_Spidroin_Curation
 ```
 

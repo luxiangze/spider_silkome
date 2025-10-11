@@ -109,7 +109,7 @@ spider_silkome/
 
 ## 贡献与支持
 
-- 报告问题：[GitHub Issues](https://github.com/luxiangze/spider_silkome/issues)
+- 报告问题：[GitHub Issues](https://github.com/luxiangze/Spider_Spidroin_Curation/issues)
 - 文档反馈：欢迎提交 PR
 - 联系方式：见项目 README
 

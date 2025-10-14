@@ -78,14 +78,14 @@ python spider_silkome_module/miniprot_mapping.py \
     --positive-threshold 0.80 \
     --min-length 2000 \
     --max-length 80000 \
-    --extension-length 15000
+    --extension-length 500
 ```
 
 **关键参数**:
 - `--positive-threshold`: 比对质量阈值（默认 0.75）
 - `--min-length`: 最小基因长度（默认 1000 bp）
 - `--max-length`: 最大基因长度（默认 100000 bp）
-- `--extension-length`: 延伸长度（默认 10000 bp）
+- `--extension-length`: 延伸长度（默认 1000 bp）
 
 参数详细说明请参见 [技术细节文档](technical-details.md)。
 

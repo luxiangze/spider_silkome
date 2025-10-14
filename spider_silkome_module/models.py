@@ -31,6 +31,81 @@ class GFFData:
     frame: str  # Reading frame ('0', '1', '2' or '.')
     attributes: Attributes  # Attribute Information
 
+@dataclass
+class GeneralGFF:
+    """Data structure of the general gff file"""
+
+    chr: str  # Chromosome name
+    source: str  # Source Text: Source (e.g., 'miniprot')
+    type: str  # Feature types (such as 'gene', 'mRNA', 'CDS')
+    start: int  # Starting position (1-based)
+    end: int  # End position (1-based, inclusive)
+    score: float  # Score
+    strand: str  # Strand ('+' or '-')
+    frame: str  # Reading frame ('0', '1', '2' or '.')
+    attributes: str  # Attribute Information
+
+    @classmethod
+    def parse_gff_file(cls, gff_file: str) -> List["GeneralGFF"]:
+        """Parse GFF file and return a list of GeneralGFF objects"""
+        with open(gff_file, "r") as f:
+            lines = f.readlines()
+        # Filter out comment lines and empty lines, and split by tab
+        gff_data = [
+            line.strip().split("\t")
+            for line in lines
+            if line.strip() and not line.startswith("#")
+        ]
+        # Filter out lines with insufficient fields (must have 9 fields)
+        gff_data = [data for data in gff_data if len(data) == 9]
+        return [
+            cls(
+                chr=data[0],
+                source=data[1],
+                type=data[2],
+                start=int(data[3]),
+                end=int(data[4]),
+                score=float(data[5]) if data[5] != "." else 0.0,
+                strand=data[6],
+                frame=data[7],
+                attributes=data[8],
+            )
+            for data in gff_data
+        ]
+
+    def to_gff_line(self) -> str:
+        """Convert GeneralGFF object to GFF format line"""
+        return f"{self.chr}\t{self.source}\t{self.type}\t{self.start}\t{self.end}\t{self.score}\t{self.strand}\t{self.frame}\t{self.attributes}"
+
+    @classmethod
+    def split_by_custom_str(
+        cls,
+        gff_data: List["GeneralGFF"],
+        custom_strs: List[str],
+        output_file1: str,
+        output_file2: str,
+    ) -> None:
+        """Split GFF data by custom strings and write to files
+        
+        Parameters
+        ----------
+        gff_data : List[GeneralGFF]
+            List of GFF data objects
+        custom_strs : List[str]
+            List of strings to match in attributes field
+        output_file1 : str
+            Output file for records containing any of the custom strings
+        output_file2 : str
+            Output file for records not containing any of the custom strings
+        """
+        with open(output_file1, "w") as f:
+            for data in gff_data:
+                if any(custom_str in data.attributes for custom_str in custom_strs):
+                    f.write(f"{data.to_gff_line()}\n")
+        with open(output_file2, "w") as f:
+            for data in gff_data:
+                if not any(custom_str in data.attributes for custom_str in custom_strs):
+                    f.write(f"{data.to_gff_line()}\n")
 
 @dataclass
 class Position:

@@ -23,6 +23,7 @@ pip = "*"
 miniprot = "0.18.*"
 csvtk = ">=0.34.0,<0.35"
 biopython = ">=1.85,<2"
+pybedtools = ">=0.12.0,<0.13"
 
 [pypi-dependencies]
 mkdocs = "*"
